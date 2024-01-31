@@ -9,6 +9,7 @@ namespace HackerNewsAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("api/stories")]
+    [Produces("application/json")]
     public class StoriesController : ControllerBase
     {
         private readonly ILogger<StoriesController> _logger;
