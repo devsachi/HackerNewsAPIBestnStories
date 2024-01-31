@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace HackerNewsAPI.Services
 {
+ /// <summary>
+ /// used to fetch data from external source , in this case hacker-news
+ /// </summary>
     public class ExternalDataService : IExternalDataService
     {
         private readonly IHttpClientFactory _clientFactory;
@@ -18,12 +21,14 @@ namespace HackerNewsAPI.Services
 
         public async Task<List<int>> GetBestStoryIds()
         {
+            _logger.LogInformation("Getting best Story Ids");
             using var httpClient = _clientFactory.CreateClient();
             using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/beststories.json").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 var storyIdsJson = await response.Content.ReadAsStringAsync();
                 var bestStoriesIds = JsonConvert.DeserializeObject<List<int>>(storyIdsJson);
+                _logger.LogInformation("Best Story Ids retrieved ");
                 return bestStoriesIds;
 
             }
@@ -37,13 +42,14 @@ namespace HackerNewsAPI.Services
 
         public async Task<Story> GetStoryAsync(int storyId)
         {
-
+            _logger.LogInformation($"Getting Story for id {storyId}");
             using var httpClient = _clientFactory.CreateClient();
             using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/item/{storyId}.json").ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
                 var storyJson = await response.Content.ReadAsStringAsync();
                 var story = JsonConvert.DeserializeObject<Story>(storyJson);
+                _logger.LogInformation($"Retrived Story for id {storyId}");
                 return story ?? new Story();
 
             }

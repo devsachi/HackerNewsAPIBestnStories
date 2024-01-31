@@ -4,7 +4,10 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace HackerNewsAPI.Services
 {
-    public class StoriesCache : IStoriesCache, IDisposable
+    /// <summary>
+    /// Caching Service used for faster response time
+    /// </summary>
+    public class StoriesCache : IStoriesCache
     {
         private readonly IMemoryCache _memoryCache;
         private readonly IExternalDataService _externalDataService;
@@ -23,33 +26,21 @@ namespace HackerNewsAPI.Services
         public async Task<List<Story>> GetCachedStoriesAsync(int count)
         {
             var storyIds = await GetCachedStoryIdsAsync();
-            List<Story> stories = new List<Story>();
-            var cachedStory = await _externalDataService.GetStoryAsync(storyIds.First());
-            await Parallel.ForEachAsync(storyIds, async (id, cancellationToken) =>
-            {
-                string cacheKey = "Stories" + id;
-                if (!_memoryCache.TryGetValue(cacheKey, out Story cachedStory))
+            List<Story> stories = [];
+            string cacheKey = "Stories";
+            if (_memoryCache.TryGetValue(cacheKey, out List<Story> cachedStories))
+                return cachedStories?? stories;
+            await Parallel.ForEachAsync(storyIds, async (storyId, cancellationToken) =>
+        {
+            var cachedStory = await _externalDataService.GetStoryAsync(storyId);
 
-                {
-
-                    cachedStory = await _externalDataService.GetStoryAsync(id);
-                    _memoryCacheLock.EnterReadLock();
-                    try
-                    {
-                        var cacheEntryOptions = new MemoryCacheEntryOptions()
-                       .SetSlidingExpiration(TimeSpan.FromMinutes(5))
+            stories.Add(cachedStory);
+        });
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                       .SetSlidingExpiration(TimeSpan.FromMinutes(10))
                        .SetAbsoluteExpiration(TimeSpan.FromHours(2))
                        .SetPriority(CacheItemPriority.Normal);
-                        _memoryCache.Set(cacheKey, cachedStory, cacheEntryOptions);
-                        stories.Add(cachedStory);
-                    }
-                    finally
-                    {
-                        _memoryCacheLock.ExitReadLock();
-                    }
-
-                }
-            });
+            _memoryCache.Set(cacheKey, stories, cacheEntryOptions);
             return stories;
         }
 
@@ -72,26 +63,6 @@ namespace HackerNewsAPI.Services
 
         }
 
-        public void Dispose()
-        {
-            // Dispose of unmanaged resources.
-            Dispose(true);
-            // Suppress finalization.
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                _memoryCache.Dispose();
-                _memoryCacheLock.Dispose();
-            }
-            _disposed = true;
-        }
+       
     }
 }

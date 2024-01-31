@@ -1,17 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HackerNewsAPI.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoFixture;
+﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using FluentAssertions;
+using HackerNewsAPI.Models;
 using HackerNewsAPI.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using HackerNewsAPI.Models;
-using FluentAssertions;
 
 namespace HackerNewsAPI.Services.Tests
 {

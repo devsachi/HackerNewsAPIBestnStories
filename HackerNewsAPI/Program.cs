@@ -9,10 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddResponseCaching();
 builder.Services.AddControllers(options =>
 {
-    options.CacheProfiles.Add("OneMinuteCacheProfile",
+    options.CacheProfiles.Add("TenMinuteCacheProfile",
         new CacheProfile()
         {
-            Duration = 60
+            Duration = 600
         });
 })
 .AddNewtonsoftJson(setupAction =>
@@ -27,10 +27,10 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
-
+//In Memory Cache for better response time
 builder.Services.AddMemoryCache();
 //Services Registration
-builder.Services.AddTransient<IExternalDataService, ExternalDataService>();
+builder.Services.AddScoped<IExternalDataService, ExternalDataService>();
 builder.Services.AddScoped<IStoriesCache, StoriesCache>();
 builder.Services.AddScoped<IStoriesService, StoriesService>();
 

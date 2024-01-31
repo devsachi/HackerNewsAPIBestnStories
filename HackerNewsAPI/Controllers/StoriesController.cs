@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HackerNewsAPI.Controllers
 {
+    /// <summary>
+    /// No versioning done
+    /// It would be good to have versioning
+    /// </summary>
     [ApiController]
     [Route("api/stories")]
     public class StoriesController : ControllerBase
@@ -16,8 +20,13 @@ namespace HackerNewsAPI.Controllers
             _storiesService = storiesService;
         }
 
+        /// <summary>
+        /// This API gives the best Stories n by Score
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         [HttpGet("{count}", Name = "GetBestStories")]
-        [ResponseCache(CacheProfileName = "OneMinuteCacheProfile")]
+        [ResponseCache(CacheProfileName = "TenMinuteCacheProfile")]
         public async Task<IActionResult> GetBestStories(int count)
         {
             var stories = await _storiesService.GetBestStoriesAsync(count);

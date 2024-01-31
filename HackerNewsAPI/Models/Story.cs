@@ -2,6 +2,9 @@
 
 namespace HackerNewsAPI.Models
 {
+ /// <summary>
+ /// Model for  serialisation and showing data
+ /// </summary>
     public class Story
     {
         /// <summary>
